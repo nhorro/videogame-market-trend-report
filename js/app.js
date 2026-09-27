@@ -308,7 +308,17 @@ function block(title, caption, chart, table) {
     caption ? el("p", { class: "caption", text: caption }) : null,
     chart,
     table ? el("details", { class: "figures" }, [el("summary", { text: "Ver los números" }), table]) : null,
-    el("figcaption", { text: "Fuente: Steam Dataset 2026 cleaned, snapshot a enero de 2026." }),
+    sourceCaption(),
+  ]);
+}
+
+function sourceCaption() {
+  const url = state.meta?.source?.url;
+  const label = "Steam Dataset 2026 cleaned";
+  return el("figcaption", {}, [
+    "Fuente: ",
+    url ? el("a", { href: url, text: label }) : label,
+    ", snapshot a enero de 2026.",
   ]);
 }
 
@@ -569,7 +579,7 @@ async function renderOverlap(host) {
     }
     host.append(block(
       "Similitud entre las etiquetas elegidas",
-      "Jaccard: títulos en común dividido por títulos que tienen al menos una de las dos. La diagonal es 1. Se calcula en el período elegido.",
+      "Sirve para ver si dos etiquetas nombran el mismo conjunto de juegos o sólo se tocan. El número es la intersección dividida por la unión: 1 si aparecen siempre juntas, cerca de 0 si casi no comparten títulos. Una intersección grande puede dar un valor bajo, porque cada etiqueta también cubre juegos que la otra no nombra. La diagonal es 1. Se calcula en el período elegido.",
       chartHeatmap({
         names: state.selection.map((item) => item.name),
         matriz: matriz.jaccard,
@@ -786,14 +796,20 @@ function liftTable(rows) {
   );
 }
 
+function rankingKey() {
+  return `${state.movTax}|${state.movesAnchor}|${state.movesWindow}`;
+}
+
 async function renderMoves(ticket) {
   const host = document.getElementById("moves-live");
-  host.replaceChildren();
   if (!state.cat) {
-    host.append(el("p", { class: "note", text: "Cargando el catálogo en el navegador…" }));
+    host.replaceChildren(el("p", { class: "note", text: "Cargando el catálogo en el navegador…" }));
     return;
   }
-  host.append(el("p", { class: "note", text: "Consultando movimientos…" }));
+  const key = rankingKey();
+  if (!cacheRanking.has(key)) {
+    host.replaceChildren(el("p", { class: "note", text: "Consultando movimientos…" }));
+  }
   let outcome;
   try {
     outcome = await rankingCache();
@@ -802,8 +818,12 @@ async function renderMoves(ticket) {
     host.replaceChildren(el("p", { class: "note", text: `No se pudo consultar: ${error.message}` }));
     return;
   }
-  if (ticket !== movesTicket) return;
-  host.replaceChildren();
+  if (ticket !== movesTicket || key !== rankingKey()) return;
+  paintMoves(outcome);
+}
+
+function paintMoves(outcome) {
+  const host = document.getElementById("moves-live");
   const minimums = state.movesSmall ? { recent: 1, previous: 0 } : FLOORS[state.movTax];
   const rows = outcome.rows.filter((row) => row.recentReleases >= minimums.recent && row.prevReleases >= minimums.previous && row.dPart != null);
   const text = foldText(state.movesQuery.trim());
@@ -811,27 +831,36 @@ async function renderMoves(ticket) {
   const sortedRows = visibles.slice().sort((a, b) => b.dPart - a.dPart);
   const gainers = sortedRows.filter((row) => row.dPart > 0).slice(0, 12);
   const losers = sortedRows.filter((row) => row.dPart < 0).sort((a, b) => a.dPart - b.dPart).slice(0, 12);
-  host.append(el("p", { class: "caption", text: `Ventanas ${yearSpan(outcome.previousStart, outcome.previousEnd)} y ${yearSpan(outcome.recentStart, outcome.anchor)}. Cobertura de ${TAX_PLURAL[state.movTax].toLowerCase()}: ${pct(outcome.prevCoverage)} y después ${pct(outcome.recentCoverage)}. ${state.movesSmall ? "Estás viendo también etiquetas chicas: el ruido manda." : `Se excluyen las que no llegan a ${minimums.recent} lanzamientos recientes y ${minimums.previous} previos.`}` }));
+  host.replaceChildren();
+  host.append(el("p", { class: "caption", text: `Ventanas ${yearSpan(outcome.previousStart, outcome.previousEnd)} y ${yearSpan(outcome.recentStart, outcome.anchor)}. Cobertura de ${TAX_PLURAL[state.movTax].toLowerCase()}: ${pct(outcome.prevCoverage)} y después ${pct(outcome.recentCoverage)}. ${state.movesSmall ? "Se incluyen etiquetas con pocos lanzamientos: el orden es más ruidoso." : `Quedan afuera las que no llegan a ${minimums.recent} lanzamientos recientes y ${minimums.previous} previos.`}` }));
   if (Math.abs((outcome.recentCoverage ?? 0) - (outcome.prevCoverage ?? 0)) >= 8) {
     host.append(el("p", { class: "note", text: "La cobertura cambia bastante entre ventanas. Una etiqueta puede «caer» porque faltan metadatos." }));
   }
-  host.append(block("Ganan participación", "Las doce subas más grandes, en puntos.", chartBars({
-    rows: gainers.map((row) => ({ name: row.name, value: row.dPart, color: "#3ddc97" })),
-    format: (value) => pp(value),
-    aria: "Etiquetas que ganan participación",
-    signed: true,
-  }), null));
-  host.append(block("Pierden participación", "Las doce bajas más grandes.", chartBars({
-    rows: losers.map((row) => ({ name: row.name, value: row.dPart, color: "#fb7185" })),
-    format: (value) => pp(value),
-    aria: "Etiquetas que pierden participación",
-    signed: true,
-  }), null));
-  host.append(el("p", { class: "caption", text: "Abrir una etiqueta usa el período de estas ventanas en Explorar." }));
-  host.append(el("details", { class: "figures" }, [
+  if (!sortedRows.length) {
+    host.append(el("p", { class: "note", text: text ? "Ninguna etiqueta coincide con el filtro." : "Ninguna etiqueta llega al mínimo de lanzamientos en estas ventanas." }));
+    return;
+  }
+  if (gainers.length) {
+    host.append(block("Ganan participación", "Las doce subas más grandes, en puntos.", chartBars({
+      rows: gainers.map((row) => ({ name: row.name, value: row.dPart, color: "#3ddc97" })),
+      format: (value) => pp(value),
+      aria: "Etiquetas que ganan participación",
+      signed: true,
+    }), null));
+  }
+  if (losers.length) {
+    host.append(block("Pierden participación", "Las doce bajas más grandes.", chartBars({
+      rows: losers.map((row) => ({ name: row.name, value: row.dPart, color: "#fb7185" })),
+      format: (value) => pp(value),
+      aria: "Etiquetas que pierden participación",
+      signed: true,
+    }), null));
+  }
+  host.append(el("p", { class: "caption", text: "Abrir una etiqueta muestra, en Explorar, los años de estas dos ventanas." }));
+  host.append(el("details", { class: "figures", open: Boolean(text) }, [
     el("summary", { text: `Ver la tabla completa (${num(sortedRows.length)} etiquetas)` }),
     simpleTable(
-    ["Etiqueta", "Lanz. previos", "Lanz. recientes", "Cambio de volumen", "Participación previa", "Participación reciente", "Cambio"].map((text, index) => ({ text, num: index > 0 })),
+    ["Etiqueta", "Lanz. previos", "Lanz. recientes", "Cambio de volumen", "Participación previa", "Participación reciente", "Cambio"].map((header, index) => ({ text: header, num: index > 0 })),
     sortedRows.map((row) => [
       el("button", { type: "button", class: "row-link", text: row.name, onClick: () => openLabel(row) }),
       numCell(num(row.prevReleases)),
@@ -846,7 +875,7 @@ async function renderMoves(ticket) {
 }
 
 function rankingCache() {
-  const key = `${state.movTax}|${state.movesAnchor}|${state.movesWindow}`;
+  const key = rankingKey();
   if (!cacheRanking.has(key)) {
     const consulta = ranking(state.cat, state.movTax, state.movesAnchor, state.movesWindow);
     consulta.catch(() => cacheRanking.delete(key));
@@ -921,8 +950,11 @@ function renderOverview() {
       el("section", {}, [el("h3", { text: "Combinaciones exactas de categorías" }), combinationTable("Categories")]),
     ]),
   );
-  document.getElementById("source-note").textContent =
-    `${meta.source.name} · ${meta.source.credit}. ${num(meta.source.titles)} títulos. ${shortDate(meta.source.firstDate)} a ${shortDate(meta.source.lastDate)}. SHA-256 ${meta.source.sha256.slice(0, 12)}… No está afiliado a Valve ni a los autores del dataset.`;
+  const note = document.getElementById("source-note");
+  note.replaceChildren(
+    el("a", { href: meta.source.url, text: meta.source.name }),
+    ` · ${meta.source.credit}. ${num(meta.source.titles)} títulos. ${shortDate(meta.source.firstDate)} a ${shortDate(meta.source.lastDate)}. SHA-256 ${meta.source.sha256.slice(0, 12)}… No está afiliado a Valve ni a los autores del dataset.`,
+  );
 }
 
 function taxonomyCard(tax, text) {
@@ -1105,7 +1137,7 @@ function bindUi() {
     }
   });
   document.addEventListener("click", (evento) => {
-    if (!evento.target.closest(".buscador")) {
+    if (!evento.target.closest(".search")) {
       state.suggestions = [];
       renderSuggestions();
     }
@@ -1128,7 +1160,14 @@ function bindUi() {
   });
   on("moves-query", "input", () => {
     state.movesQuery = document.getElementById("moves-query").value;
-    if (state.view === "moves") renderMoves();
+    if (state.view !== "moves") return;
+    const key = rankingKey();
+    const cached = cacheRanking.get(key);
+    if (!cached) return;
+    cached.then((outcome) => {
+      if (key !== rankingKey()) return;
+      paintMoves(outcome);
+    }).catch(() => {});
   });
   window.addEventListener("hashchange", () => {
     readHash();

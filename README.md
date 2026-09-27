@@ -44,16 +44,26 @@ snapshot, no series de demanda. `Estimated owners` es un rango.
 
 ## Publicar en GitHub Pages
 
-Esta carpeta es la raíz del sitio. El repositorio público tiene que contener
-`index.html` en la raíz, no esta carpeta anidada dentro de otro proyecto.
+El repositorio es [nhorro/videogame-market-trend-report](https://github.com/nhorro/videogame-market-trend-report).
+Esta carpeta es la raíz del sitio: `index.html` tiene que quedar en la raíz,
+no adentro de otra carpeta.
 
-1. Creá un repositorio y subí esta carpeta. Los datos van en `data/`:
-   `meta.json` (chico, el panorama) y `games.json` (el catálogo).
-   Sin esos dos archivos el sitio no tiene números.
-2. En el repositorio: Settings → Pages → Branch `main` → carpeta `/ (root)`.
-3. La URL va a ser `https://<usuario>.github.io/<repo>/`.
+No hace falta un build en GitHub. Los datos ya están en `data/meta.json` y
+`data/games.json`. Sin esos dos archivos el panorama no tiene números.
+`.nojekyll` también va en la raíz: si falta, Pages procesa el repo con Jekyll
+y puede ignorar archivos.
 
-No hace falta un build en GitHub. Los datos ya están generados.
+1. Subí `main` con `index.html`, `css/`, `js/`, `data/` y `.nojekyll`.
+   No subas `node_modules/` ni `.venv/`: están en `.gitignore`.
+2. En el repositorio: Settings → Pages → Build and deployment → Deploy from a branch.
+3. Branch: `main`. Folder: `/ (root)`. Save.
+4. En uno o dos minutos la página queda en
+   <https://nhorro.github.io/videogame-market-trend-report/>.
+
+La primera visita de cada persona descarga DuckDB-Wasm desde jsDelivr. Hace
+falta conexión esa vez. El catálogo sale del repositorio y las consultas
+corren en el navegador. Si el hash de un recorte se comparte, la URL sigue
+siendo la de Pages más `#/explore?...`.
 
 ## Probarlo antes de subirlo
 

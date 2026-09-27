@@ -410,14 +410,19 @@ export function chartStacked({ parts, aria }) {
 
 export function chartHeatmap({ names, matriz, aria }) {
   const count = names.length;
-  const margin = 128;
-  const cell = Math.max(36, Math.min(64, (720 - margin) / count));
-  const boxWidth = margin + cell * count + 8;
-  const boxHeight = margin + cell * count + 8;
+  const marginLeft = 148;
+  const cell = Math.max(44, Math.min(84, 640 / count));
+  const angle = 40 * Math.PI / 180;
+  const labels = names.map((name) => shorten(name, Math.max(10, Math.floor(cell / (6.2 * Math.cos(angle))))));
+  const longest = Math.max(...labels.map((label) => label.length), 1);
+  const labelLift = Math.ceil(Math.sin(angle) * longest * 7.4) + 36;
+  const marginTop = labelLift + 18;
+  const boxWidth = marginLeft + cell * count + 16;
+  const boxHeight = marginTop + cell * count + 16;
   const element = svgBase(boxWidth, boxHeight, aria);
   names.forEach((name, index) => {
-    const x = margin + index * cell + cell / 2;
-    const y = margin - 8;
+    const x = marginLeft + index * cell + cell * 0.72;
+    const y = marginTop - labelLift;
     const text = svgEl("text", {
       x,
       y,
@@ -426,34 +431,34 @@ export function chartHeatmap({ names, matriz, aria }) {
       "font-size": 11,
       transform: `rotate(-40 ${x} ${y})`,
     });
-    text.textContent = shorten(name, 22);
+    text.textContent = labels[index];
     element.append(text);
     element.append(svgEl("text", {
-      x: margin - 8,
-      y: margin + index * cell + cell / 2 + 4,
+      x: marginLeft - 10,
+      y: marginTop + index * cell + cell / 2 + 4,
       "text-anchor": "end",
       fill: INK,
       "font-size": 11,
     }));
-    element.lastChild.textContent = shorten(name, 18);
+    element.lastChild.textContent = shorten(name, 20);
   });
   for (let row = 0; row < count; row += 1) {
     for (let column = 0; column < count; column += 1) {
       const value = matriz[row][column];
       const t = Math.max(0, Math.min(1, value / 0.35));
       element.append(svgEl("rect", {
-        x: margin + column * cell,
-        y: margin + row * cell,
-        width: cell - 2,
-        height: cell - 2,
+        x: marginLeft + column * cell,
+        y: marginTop + row * cell,
+        width: cell - 4,
+        height: cell - 4,
         fill: mix("#1a2033", "#6d8cff", t),
       }));
       element.append(svgEl("text", {
-        x: margin + column * cell + (cell - 2) / 2,
-        y: margin + row * cell + (cell - 2) / 2 + 4,
+        x: marginLeft + column * cell + (cell - 4) / 2,
+        y: marginTop + row * cell + (cell - 4) / 2 + 4,
         "text-anchor": "middle",
         fill: t > 0.62 ? "#0e1018" : INK,
-        "font-size": cell < 48 ? 10 : 12,
+        "font-size": cell < 52 ? 10 : 12,
       }));
       element.lastChild.textContent = decimal(value, 2);
     }

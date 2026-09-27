@@ -29,10 +29,10 @@
   <main id="content">
     <section id="overview">
       <div class="wrap">
-        <p class="kicker">Snapshot de enero de 2026 · para equipos de desarrollo</p>
+        <p class="kicker">Snapshot de enero de 2026</p>
         <h1>Tendencias de nichos en Steam</h1>
         <p class="lede">Elegí géneros, categorías o tags y mirá si ese espacio gana lugar, está quieto o se achica. La herramienta sirve para analizar un nicho: separa «hay más títulos» de «pesan más».</p>
-        <p class="note">No mide ventas ni recomienda qué desarrollar.</p>
+        <p class="note">La densidad y el movimiento de un nicho sirven, al inicio del diseño, para ver si hay títulos comparables, si ese vocabulario sigue en los lanzamientos y si el espacio se está llenando o vaciando. <a href="#/method">Cómo se lee</a>. No estima ventas.</p>
         <p><a class="button-link" href="#/explore">Analizar un nicho</a></p>
         <div id="overview-live"></div>
       </div>
@@ -117,34 +117,33 @@
 
     <section id="method" hidden>
       <div class="wrap prose">
-        <p class="kicker">Cómo está armado</p>
-        <h1>Para detectar nichos, no para estimar ventas</h1>
-        <p>El objetivo es analizar y detectar nichos en el catálogo de Steam. Elegís tags, categorías o géneros y ves dos cosas: cuánto lugar ocupan entre los juegos que sí tienen esa información, y si ese lugar se mueve entre dos ventanas de años. Sirve para reconocer densidad, vocabulario y casos comparables. No dice qué conviene desarrollar ni cuánto se va a vender.</p>
-        <p>Un tag que «crece» quiere decir que aparece en más lanzamientos, o en una porción mayor del catálogo etiquetado. Puede haber más competencia, un cambio de vocabulario, tags puestos después del lanzamiento o un cambio en los metadatos. La página no separa esas causas.</p>
-        <p>Con unos 114 mil títulos, las cuentas no se hacen a mano en el navegador: DuckDB corre ahí mismo, en WebAssembly, y consulta el JSON que está en <code>data/</code>. Nada de eso sale de tu máquina. La primera visita baja el motor desde jsDelivr; el catálogo sigue siendo el archivo del repositorio.</p>
+        <p class="kicker">Definiciones</p>
+        <h1 id="leer-nicho">Cómo leer un nicho</h1>
+        <p>Se mide oferta publicada: cuántos títulos de un género, una categoría o un tag salen cada año, y qué lugar ocupan entre los juegos que informan esa clasificación. No se miden ventas, wishlists ni demanda.</p>
+        <p>Al inicio del diseño, esa lectura permite comprobar si existen títulos comparables, si el vocabulario sigue apareciendo en los lanzamientos recientes y si el espacio se llena o se vacía. No indica qué conviene desarrollar.</p>
 
-        <h2>De dónde salen los datos</h2>
-        <p>La fuente es <a href="https://www.kaggle.com/datasets/stefanotriscali/steam-database-2026-fixed">Steam Dataset 2026 cleaned</a>, de Stefano Triscali. Es una corrección del <a href="https://huggingface.co/datasets/FronkonGames/steam-games-dataset">Steam Games Dataset</a> de Martin Bustos / Fronkon Games, actualizada a enero de 2026. Combina la ficha de Steam con datos de SteamSpy. El pie de página muestra la cantidad de títulos y un recorte del SHA-256 del archivo usado para generar esta copia.</p>
-        <p><em>Estimated owners</em> es un rango, no un conteo de ventas. Acá se usa el punto medio de ese rango y, cuando hace falta el dato crudo, el intervalo. El rango 0–0 es un intervalo de la fuente, no un conteo verificado de cero propietarios. Reviews, usuarios concurrentes pico y tiempo de juego son acumulados observados en el snapshot. Agrupados por año describen la cohorte que salió ese año, no lo que pasó durante ese año.</p>
+        <h2>Fuente</h2>
+        <p>Los datos son el <a href="https://www.kaggle.com/datasets/stefanotriscali/steam-database-2026-fixed">Steam Dataset 2026 cleaned</a>, de Stefano Triscali: una corrección del <a href="https://huggingface.co/datasets/FronkonGames/steam-games-dataset">Steam Games Dataset</a> de Martin Bustos / Fronkon Games, con cierre en enero de 2026. Combina la ficha de Steam con datos de SteamSpy.</p>
+        <p><em>Estimated owners</em> es un rango, no un conteo de ventas. Se usa el punto medio de ese rango. El intervalo 0–0 pertenece a la fuente: no es un cero verificado. Reviews, usuarios concurrentes y tiempo de juego son acumulados del snapshot. Agrupados por año describen la cohorte publicada ese año, no lo ocurrido durante ese año.</p>
 
-        <h2>Tres formas de nombrar un juego</h2>
-        <p><strong>Géneros</strong> son familias amplias: Adventure, Action, Simulation. La cobertura es casi completa. Indie, Early Access y Free To Play están en esta lista porque así vienen en la fuente.</p>
-        <p><strong>Categorías</strong> describen funciones de Steam: un jugador, logros, soporte de control, cooperativo. Sirven para preguntas de plataforma. Un salto abrupto puede ser un cambio de la ficha y no de la demanda.</p>
-        <p><strong>Tags</strong> mezclan mecánica, tema, estética, tono y comunidad. Son los más útiles para un nicho y los más incompletos. En este snapshot cubren cerca de tres cuartos de los títulos, y esa cobertura cae en los años nuevos. Por eso la comparación recomendada termina en 2024: meter 2025 sin avisar haría parecer que desaparecieron juegos que en realidad no tienen tags.</p>
-        <p>Los porcentajes de una taxonomía no suman 100%. Un juego lleva varias etiquetas a la vez.</p>
+        <h2>Tres clasificaciones</h2>
+        <p><strong>Géneros</strong> son familias amplias: Adventure, Action, Simulation. La cobertura es casi completa. Indie, Early Access y Free To Play figuran en esta lista porque así vienen en la fuente.</p>
+        <p><strong>Categorías</strong> describen funciones de la plataforma: un jugador, logros, soporte de control, cooperativo. Un salto abrupto puede ser un cambio de ficha, no de publicación.</p>
+        <p><strong>Tags</strong> mezclan mecánica, tema, estética, tono y comunidad. Son la clasificación más útil para un nicho y la más incompleta. En este snapshot cubren cerca de tres cuartos de los títulos, y la cobertura cae en los años nuevos. La comparación recomendada termina en 2024: incluir 2025 haría parecer que desaparecieron juegos que, en realidad, todavía no tienen tags.</p>
+        <p>Los porcentajes de una clasificación no suman 100%. Un juego lleva varias etiquetas a la vez.</p>
 
-        <h2>Participación, no sólo cantidad</h2>
-        <p>La cantidad de lanzamientos sube en casi todo Steam. Para no confundir «hay más juegos de este tipo» con «este tipo pesa más», cada serie muestra lanzamientos absolutos y participación entre los juegos del año que tienen la taxonomía informada.</p>
-        <p>La comparación usa dos ventanas seguidas del mismo largo. Con el ancla en 2024 y ventanas de 3 años: 2019–2021 contra 2022–2024. La participación de la ventana suma los tres años y divide. No es el promedio de los tres porcentajes anuales.</p>
-        <p>El cartel es una ayuda, no un test. Gana lugar si la participación sube al menos 0,5 puntos. Si el volumen sube 15% o más y la participación se mueve menos que eso, el cartel dice que hay más títulos pero el peso relativo está quieto.</p>
+        <h2>Participación y ventanas</h2>
+        <p>La cantidad de lanzamientos sube en casi todo el catálogo. Para no confundir «hay más juegos de este tipo» con «este tipo pesa más», cada serie muestra lanzamientos y participación. La participación es la cantidad de lanzamientos de la etiqueta dividida por los juegos del mismo año que informan esa clasificación.</p>
+        <p>La comparación usa dos ventanas seguidas del mismo largo. Con ancla en 2024 y ventanas de 3 años: 2019–2021 contra 2022–2024. La participación de una ventana suma los años y después divide. No es el promedio de los porcentajes anuales.</p>
+        <p>Un tag que «crece» gana participación, al menos 0,5 puntos. Puede haber más competencia, un cambio de vocabulario, tags cargados después del lanzamiento o un cambio de metadatos: la serie no separa esas causas. Si el volumen sube 15% o más y la participación se mueve menos que 0,5 puntos, hay más títulos y el peso relativo queda quieto.</p>
 
-        <h2>Recorte combinado</h2>
-        <p>Cada etiqueta por separado compara curvas. Un recorte combinado arma un conjunto. <strong>Todas</strong> exige cada etiqueta elegida. <strong>Alguna</strong> alcanza con una. Se pueden mezclar géneros, categorías y tags. En ese caso, el denominador son los juegos que tienen informadas todas las taxonomías que usaste.</p>
-        <p>La similitud entre dos etiquetas es el índice de Jaccard: títulos en común dividido por títulos que tienen al menos una de las dos. Un valor bajo con una intersección grande quiere decir que se tocan, pero que ninguna reemplaza a la otra.</p>
+        <h2 id="jaccard">Similitud entre etiquetas</h2>
+        <p>El índice de Jaccard dice si dos etiquetas nombran al mismo conjunto de juegos. Es la cantidad de títulos que llevan las dos, dividida por la cantidad que lleva al menos una. Vale 1 cuando aparecen siempre juntas y se acerca a 0 cuando casi no se solapan. Una intersección numerosa puede convivir con un Jaccard bajo: se tocan, pero cada etiqueta cubre muchos títulos que la otra no nombra.</p>
+        <p>Cada etiqueta por separado compara curvas. Un recorte combinado arma un solo conjunto. <strong>Todas</strong> exige cada etiqueta elegida. <strong>Alguna</strong> alcanza con una. Si se mezclan géneros, categorías y tags, el denominador son los juegos que informan todas las clasificaciones usadas.</p>
 
         <h2>Desempeño relativo</h2>
-        <p>Reviews y owners favorecen a lo que lleva más años publicado. El modelo no compara un juego de 2013 con uno de 2024 en crudo. Los separa en bloques de dos años, contados desde el inicio del período. Con el período por defecto quedan 2010–2011, 2012–2013, y así. Si cambiás el año Desde, los bloques se corren.</p>
-        <p>Dentro de cada bloque, el <strong>alcance</strong> es 0,75 × el percentil de reviews + 0,25 × el percentil del punto medio de owners. Los rangos de owners son gruesos y empatan mucho; por eso pesan menos. La <strong>satisfacción</strong> es el percentil de una tasa positiva suavizada: se suma una previa de 30 reviews con la tasa media del recorte, para que un 100% con dos opiniones no quede arriba de todo. Sólo entra quien pasa el mínimo de reviews. El resto sigue contando para el alcance y no recibe un juicio de recepción.</p>
+        <p>Reviews y owners favorecen a lo publicado hace más años. Un juego de 2013 no se compara en crudo con uno de 2024. Se separan en bloques de dos años, contados desde el inicio del período. Con el período por defecto quedan 2010–2011, 2012–2013, y así. Si se cambia el año inicial, los bloques se desplazan.</p>
+        <p>Dentro de cada bloque, el <strong>alcance</strong> es 0,75 × el percentil de reviews + 0,25 × el percentil del punto medio de owners. Los rangos de owners son gruesos y empatan mucho; por eso pesan menos. La <strong>satisfacción</strong> es el percentil de una tasa positiva suavizada: se suma una previa de 30 reviews con la tasa media del recorte, para que un 100% con dos opiniones no quede arriba. Sólo se juzga la recepción de quien pasa el mínimo de reviews. El resto sigue contando para el alcance.</p>
         <div class="table-wrap">
           <table>
             <thead>
@@ -161,20 +160,16 @@
             </tbody>
           </table>
         </div>
-        <p>El lift compara qué tan seguido aparece un tag en un segmento contra qué tan seguido aparece entre los juegos del recorte que sí tienen reviews suficientes. Un lift de 2 quiere decir «el doble de presente». No es una causa. Los tags con los que definiste el recorte se excluyen: están en todos los juegos por construcción.</p>
+        <p>El lift compara qué tan seguido aparece un tag en un segmento contra qué tan seguido aparece entre los juegos del recorte con reviews suficientes. Un lift de 2 quiere decir «el doble de presente». No es una causa. Los tags que definen el recorte no entran en esa cuenta: están en todos los juegos del conjunto por construcción.</p>
 
-        <h2>Qué queda afuera</h2>
-        <p>El catálogo viaja al navegador en un formato compacto, sin textos de tienda, sin capturas y sin developers ni publishers. Con eso se puede armar el recorte, la tendencia, la coocurrencia y el desempeño. No se puede:</p>
+        <h2>Qué no responde</h2>
         <ul>
-          <li>saber ventas, wishlists, reembolsos, presupuesto ni marketing;</li>
-          <li>armar una serie de demanda año a año, porque los números son acumulados del snapshot;</li>
-          <li>filtrar por estudio, publisher o idioma;</li>
-          <li>cambiar el peso 0,75/0,25 ni las 30 reviews de previa sin tocar el código;</li>
-          <li>dibujar cada punto cuando el recorte supera los 2.500 títulos con recepción evaluable: en ese caso quedan la distribución y las listas;</li>
-          <li>tratar una combinación exacta de una decena de tags como si fuera una categoría estable. La intersección de unas pocas etiquetas sí está cubierta.</li>
+          <li>Ventas, wishlists, reembolsos, presupuesto o marketing.</li>
+          <li>Demanda año a año: reviews, owners, usuarios concurrentes y tiempo de juego son acumulados del snapshot.</li>
+          <li>Recortes por estudio, publisher o idioma.</li>
+          <li>Un plano de puntos cuando el recorte supera los 2.500 títulos con reviews suficientes. En ese caso quedan la distribución y las listas.</li>
         </ul>
-        <p>Los nombres de las listas salen de la ficha pública y enlazan a Steam. «Bajo desempeño» es una posición relativa en este modelo y en este recorte, no un juicio del juego.</p>
-        <p>Para regenerar los datos hace falta el CSV y <code>build.py</code>. El procedimiento está en el README del proyecto.</p>
+        <p>Los nombres de las listas salen de la ficha pública y enlazan a Steam. «Bajo desempeño» es una posición relativa en este recorte, no un juicio del juego.</p>
       </div>
     </section>
   </main>
