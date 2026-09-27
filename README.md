@@ -1,11 +1,11 @@
 # Tendencias de mercado
 
+[Ir a aplicación](https://nhorro.github.io/videogame-market-trend-report).
+
 Sitio estático para **analizar y detectar nichos** en el catálogo de Steam:
 qué lugar ocupa un recorte y si gana participación, queda quieto o se achica.
 
-Está pensado para equipos de desarrollo de la Argentina. La interfaz está en
-español. No estima ventas ni recomienda qué juego hacer. Mide oferta publicada
-y cómo se describe, con un snapshot de enero de 2026.
+Mide oferta publicada y cómo se describe, con un snapshot de enero de 2026.
 
 Las consultas corren en el navegador con [DuckDB-Wasm](https://duckdb.org/docs/current/clients/wasm/overview.html)
 (versión fijada `1.33.1-dev57.0`, el build `+esm` de jsDelivr). No hay servidor: el JSON de
@@ -13,9 +13,6 @@ Las consultas corren en el navegador con [DuckDB-Wasm](https://duckdb.org/docs/c
 rankings son SQL. El modelo de desempeño sigue en JavaScript sobre el recorte
 que devuelve DuckDB. GitHub Pages no aísla el origen, así que se usa el build
 sin hilos. La primera visita descarga el motor; después queda en caché.
-
-El sitio no está armado alrededor de un juego concreto. Cualquier combinación
-de géneros, categorías y tags se lee con el mismo método.
 
 ## Qué se puede hacer
 
@@ -31,9 +28,9 @@ de géneros, categorías y tags se lee con el mismo método.
 - Compartir el recorte: el estado queda en la URL.
 - Rankear qué etiquetas ganaron o perdieron participación.
 
-## Qué no entra
+## Limitaciones
 
-No hay servidor. El navegador descarga un catálogo compacto (sin descripciones,
+Como está pensado para correr sin servidor, el navegador descarga un catálogo compacto (sin descripciones,
 capturas, developers ni publishers) y calcula ahí. Con eso no se puede filtrar
 por estudio o idioma, ni cambiar el peso 75/25 del alcance ni las 30 reviews de
 previa. Si el recorte tiene más de 8.000 títulos con recepción evaluable, el
@@ -43,9 +40,8 @@ siendo del total. El detalle está en la sección Método del sitio.
 Reviews, owners, usuarios concurrentes y tiempo de juego son acumulados del
 snapshot, no series de demanda. `Estimated owners` es un rango.
 
-## Publicar en GitHub Pages
+## Publicación en Github Pages
 
-El repositorio es [nhorro/videogame-market-trend-report](https://github.com/nhorro/videogame-market-trend-report).
 Esta carpeta es la raíz del sitio: `index.html` tiene que quedar en la raíz,
 no adentro de otra carpeta.
 
@@ -106,7 +102,7 @@ Hace falta Node 18 o más nuevo para el test y un navegador actual para el sitio
 El ancla recomendada sigue siendo 2024: en 2025 la cobertura de tags cae fuerte
 y una ausencia de metadatos parece una caída del mercado.
 
-## Método, en corto
+## Método
 
 - La participación de una etiqueta es su cantidad de lanzamientos dividida por
   los juegos del mismo año que tienen esa taxonomía informada.
@@ -114,9 +110,3 @@ y una ausencia de metadatos parece una caída del mercado.
 - El desempeño compara cada juego con su bloque de dos años. No es una tasa de
   éxito del género: el grupo breakout existe porque el corte está en el
   percentil 90.
-
-## Licencia de los datos
-
-Los datos de origen no son de este repositorio. Al redistribuir el catálogo
-compacto, mantené la atribución del pie de página y revisá las condiciones de
-Kaggle y de la ficha original antes de publicar.
