@@ -687,18 +687,19 @@ async function renderDepth(host, result) {
     }),
     null,
   ));
-  if (model.points) {
+  if (model.points.length) {
     const canvasEl = el("canvas", { class: "scatter", ariaLabel: "Alcance y satisfacción relativos" });
+    const sampleNote = model.pointsSampled
+      ? ` Se marcan ${num(model.points.length)} de ${num(model.eligible)}, repartidos a lo largo del recorte.`
+      : "";
     const figure = block(
       "Alcance y satisfacción",
-      "Cada punto es un juego con reviews suficientes. Abajo a la derecha: poca llegada y mucha satisfacción relativa. Arriba: más alcance dentro de su bloque de edad.",
+      `Cada punto es un juego con reviews suficientes. Abajo a la derecha: poca llegada y mucha satisfacción relativa. Arriba: más alcance dentro de su bloque de edad.${sampleNote}`,
       canvasEl,
       null,
     );
     host.append(figure);
     requestAnimationFrame(() => drawScatter(canvasEl, model.points));
-  } else {
-    host.append(el("p", { class: "note", text: "Hay demasiados títulos con reviews suficientes para marcar cada punto. Quedan la distribución y las listas." }));
   }
   renderLists(host, model);
   await renderLift(host, model);

@@ -613,17 +613,21 @@ export async function performance(cat, ids, options) {
     pct: count ? (evidenceCounts[position] / count) * 100 : 0,
   }));
 
-  const points = [];
-  if (primary.eligible <= 2500) {
-    for (let position = 0; position < count; position += 1) {
-      if (!primary.mask[position] || primary.satisfaction[position] == null) continue;
-      points.push({
-        alcance: alcance[position],
-        satisfaction: primary.satisfaction[position],
-        segment: primary.code[position],
-      });
-    }
+  const allPoints = [];
+  for (let position = 0; position < count; position += 1) {
+    if (!primary.mask[position] || primary.satisfaction[position] == null) continue;
+    if (!Number.isFinite(alcance[position])) continue;
+    allPoints.push({
+      alcance: alcance[position],
+      satisfaction: primary.satisfaction[position],
+      segment: primary.code[position],
+    });
   }
+  const pointCap = 8000;
+  const pointsSampled = allPoints.length > pointCap;
+  const points = pointsSampled
+    ? Array.from({ length: pointCap }, (_, index) => allPoints[Math.floor(index * allPoints.length / pointCap)])
+    : allPoints;
 
   const segmentIds = {};
   const eligibleIds = [];
@@ -647,6 +651,7 @@ export async function performance(cat, ids, options) {
     lists,
     evidencia,
     points,
+    pointsSampled,
     segmentIds,
     eligibleIds,
   };

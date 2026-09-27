@@ -36,8 +36,9 @@ de géneros, categorías y tags se lee con el mismo método.
 No hay servidor. El navegador descarga un catálogo compacto (sin descripciones,
 capturas, developers ni publishers) y calcula ahí. Con eso no se puede filtrar
 por estudio o idioma, ni cambiar el peso 75/25 del alcance ni las 30 reviews de
-previa. El plano de puntos se omite si hay más de 2.500 títulos con recepción
-evaluable. El detalle está en la sección Método del sitio.
+previa. Si el recorte tiene más de 8.000 títulos con recepción evaluable, el
+plano de puntos muestra una muestra; la distribución y las listas siguen
+siendo del total. El detalle está en la sección Método del sitio.
 
 Reviews, owners, usuarios concurrentes y tiempo de juego son acumulados del
 snapshot, no series de demanda. `Estimated owners` es un rango.

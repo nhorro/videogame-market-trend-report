@@ -177,7 +177,8 @@ figcaption { margin-top: 0.45rem; }
 .card .stat { font-size: 1.7rem; margin: 0.2rem 0; color: var(--blue); }
 
 .chart { padding: 0.85rem 0.95rem 0.75rem; margin: 0.9rem 0; }
-.chart svg, .scatter { width: 100%; height: auto; display: block; }
+.chart svg { width: 100%; height: auto; display: block; }
+.scatter { width: 100%; height: 420px; display: block; background: transparent; }
 
 .explore-grid {
   display: grid;
