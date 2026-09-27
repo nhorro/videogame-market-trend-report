@@ -1,0 +1,11 @@
+[project]
+name = "steam-market-trends"
+version = "1.0.0"
+description = "Static site for Steam niche participation and market trends"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas>=2.2",
+]
+
+[tool.uv]
+package = false

@@ -1,0 +1,13 @@
+{
+  "name": "steam-market-trends",
+  "private": true,
+  "type": "module",
+  "description": "Dev dependency so the check uses the same DuckDB-Wasm as the browser",
+  "scripts": {
+    "preview": "bash preview.sh",
+    "test": "node test/control.mjs"
+  },
+  "devDependencies": {
+    "@duckdb/duckdb-wasm": "1.33.1-dev57.0"
+  }
+}
